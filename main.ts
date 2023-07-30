@@ -1,36 +1,8 @@
-const turnGrid = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]
+import {initBoard, turn, isCorrect, randomBoard} from "./game.js"
 
-function initBoard(size: number = 5) {
-    let arr = new Array(3);
-    for(let b = 0; b < size; b++) {
-    arr[b] = new Array(3);
-    for(let a = 0; a < size; a++) {
-        arr[b][a] = "1"//(a + b) % 2? "1":"-1";
-    }
-    }
-    return arr
-}
-
-function isCorrect(board) {
-    const numOfCorrect = board.reduce((a, b) => {
-        return a.concat(b)
-    }).filter((a) => {
-        return a == 1
-    }).length
-    return board.reduce((a, b) => {return a.concat(b)}).length == numOfCorrect
-}
-
-function turn(board, x, y) {
-    const leng = board.length
-    turnGrid.forEach((grid) => {
-        const dx = y + grid[0]
-        const dy = x + grid[1]
-        if (dy > -1 && dy < leng && dx > -1 && dx < leng) {
-            board[dy][dx] *= -1
-        }
-    })
-    return board
-}
+let board
+const boardSize = 6
+let muted = true
 
 function debugView(board: any) {
     const mapped = board.map((a) => {
@@ -45,18 +17,36 @@ function debugView(board: any) {
     }).reduce((y, b) => {return y + "</br>" + b})
 }
 
-const boardSize = 5
-let board = initBoard(boardSize)
-
-for(let i=0; i<3; i++) {
-    board = turn(board, Math.floor(Math.random()*boardSize), Math.floor(Math.random()*boardSize))
+(window as any).muteGetter = () => {
+    mute()
 }
 
-function reload(x, y) {
+function mute() {
+    const audios: NodeListOf<HTMLAudioElement> = document.querySelectorAll('audio')
+    const button = document.getElementById('mute')
+    if (muted) {
+        muted = false
+        button!.innerHTML = '<span onclick="muteGetter()" style="background-color: #0c0c0c; color: white; padding: 5px 10px;">SOUND ON</span>'
+    } else {
+        muted = true
+        button!.innerHTML = '<span onclick="muteGetter()" style="background-color: #b3170b; color: white; padding: 5px 10px;">SOUND MUTED</span>'
+    }
+    Array.prototype.forEach.call(audios, (audio) => {
+        audio.muted = muted
+        console.log(muted)
+    })
+}
+
+(window as any).reload = (x, y) => {
     if (!isCorrect(board)) {
         board = turn(board, x, y)
+        const piece = <HTMLVideoElement> document.getElementById('piece')
+        const correct = <HTMLVideoElement> document.getElementById('correct')
+        piece.currentTime = 0;
+        piece.play()
         redraw()
         if (isCorrect(board)) {
+            setTimeout(() => {correct.play()}, 500)
             let status = document.getElementById("status")
             status!.innerHTML = '<span style="background-color: #3030FF; color: white; padding: 20px;">クリア！おめでとう！</span>'
             console.log("correct")
@@ -70,7 +60,9 @@ function redraw() {
     for (let row = 0; row < board.length; row++) {
         tables += "<tr>"
         for (let col = 0; col < board[row].length; col++) {
-            tables += "<td onclick=\"reload(" + row + "," + col + ")\" class=\"grid" + board[row][col] + " grid\"></td>"
+            tables += "<td onclick='reload(" + row + "," + col + ")' class='grid'>"
+            tables += "<img width='100%' class='piece' src='./assets/" + (board[row][col]==1? "sun": "moon") + ".png'>"
+            tables += "</td>"
         }
         tables += "</tr>"
     }
@@ -79,7 +71,12 @@ function redraw() {
     let htmlBoard = document.getElementById("board")
 
     htmlBoard!.innerHTML = tables
-
-    console.log(debugView(board))
 }
-redraw()
+
+window.onload = () => {
+    board = initBoard(boardSize)
+    board = randomBoard(board, boardSize, 5)
+    redraw()
+
+    mute()
+}

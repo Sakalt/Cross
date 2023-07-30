@@ -1,15 +1,17 @@
-.grid1 {
-    background-color: #0c0c0c;
-}
-
-.grid-1 {
-    background-color: #c00902;
+@font-face {
+    font-family: "PhunWrite";
+    src: url("./fonts/PhunWrite-Regular-20230725.woff") format("woff")
 }
 
 .grid {
     margin: 5px;
-    border: 1px white solid;
-    
+    border: 2px transparent solid;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.piece {
+    display: block;
 }
 
 .grid:hover {
@@ -24,15 +26,33 @@
     margin-top: 50px;
 }
 
+#mute {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#howtoplay {
+    display: block;
+    margin: auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
 .board {
     width: 300px;
     height: 300px;
     padding: 20px;
     margin: 0px auto;
-    background-color: rgb(160, 116, 59);
+    background-color: rgb(188, 145, 88);
 }
 
 h1 {
     width: 100%;
+    text-align: center;
+    font-family: "PhunWrite";
+    font-size: 50px;
+}
+
+p {
     text-align: center;
 }
